@@ -10,7 +10,13 @@
 <script>
     function showError(message) {
         const h1 = document.createElement("h1")
-        h1.textContent = "Error: "+ message
+        h1.textContent = "Error: " + message
+        document.body.append(h1)
+    }
+
+    function showWaitingMessage(message) {
+        const h1 = document.createElement("h1")
+        h1.textContent = message
         document.body.append(h1)
     }
 
@@ -21,10 +27,10 @@
     // Have we set the values in the storage?
     let setState = false
     let setNonce = false
-    
+
     try {
         /**
-         * Attempt to generate a uuid, falls back to a random string on 
+         * Attempt to generate a uuid, falls back to a random string on
          * @returns {string}
          */
         function uuid() {
@@ -35,6 +41,7 @@
                 return (Math.random() + 1).toString(36).substring(2, 5)
             }
         }
+
         const platformOrigin = "*"; // Canvas doesn't support origin.
         let targetFrame = window.parent || window.opener
         
@@ -46,24 +53,24 @@
         }
 
         // If we don't get any response from the platform show something to the user.
-        setTimeout(function() {
+        setTimeout(function () {
             // Mobile apps users will see this the first time as they don't support the storage platform
             // but their LTI launch says they do. However they do support cookies so we should be able
             // to use the session when they complete the LTI launch.
-            showWaitingMessage("Waiting for LTI authentication to complete, please wait");
-            setTimeout(function() {
+            showWaitingMessage("Waiting for LTI authentication to complete, please wait. \nThis may take a few seconds.");
+            setTimeout(function () {
                 document.location = url;
             }, 2000)
-        }, 20000)
+        }, 5000)
 
 
         let stateUuid = uuid();
         postAndHandle(targetFrame, {
             "subject": "lti.put_data",
             "message_id": stateUuid,
-            "key": "state_"+ state,
+            "key": "state_" + state,
             "value": state
-        } , platformOrigin, function(event) {
+        }, platformOrigin, function (event) {
             setState = true
             redirectIfValid()
         })
@@ -72,16 +79,16 @@
         postAndHandle(targetFrame, {
             "subject": "lti.put_data",
             "message_id": nonceUuid,
-            "key": "nonce_"+ nonce,
+            "key": "nonce_" + nonce,
             "value": nonce
-        } , platformOrigin, function(event) {
+        }, platformOrigin, function (event) {
             setNonce = true
             redirectIfValid()
         })
 
         /**
          * Send a message and handle its response.
-         * @param target 
+         * @param target
          * @param message
          * @param origin
          * @param onResponse
@@ -89,11 +96,11 @@
         function postAndHandle(target, message, origin, onResponse) {
             function handler(event) {
                 // This isn't a message we're expecting
-                if (typeof event.data !== "object"){
+                if (typeof event.data !== "object") {
                     return;
                 }
                 // Validate it's the response type you expect
-                if (event.data.subject !== message.subject+ ".response") {
+                if (event.data.subject !== message.subject + ".response") {
                     return;
                 }
                 // Validate the message id matches the id you sent
@@ -105,7 +112,7 @@
                     return;
                 }
                 // handle errors
-                if (event.data.error){
+                if (event.data.error) {
                     // handle errors (message and code)
                     console.log(event.data.error)
                     return;
@@ -114,11 +121,12 @@
                 // Cleanup now we've got our message.
                 window.removeEventListener('message', handler)
             }
-            window.addEventListener('message', handler); 
+
+            window.addEventListener('message', handler);
             // Now the handler is setup we can send our message.
             target.postMessage(message, origin);
         }
-        
+
         function redirectIfValid() {
             // Only redirect once we've had confirmation both are set
             if (setNonce && setState) {

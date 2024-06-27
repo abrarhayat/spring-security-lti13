@@ -4,7 +4,7 @@
 
     <groupId>io.github.abrarhayat</groupId>
     <artifactId>spring-security-lti13</artifactId>
-    <version>0.1.13-SNAPSHOT</version>
+    <version>0.1.14-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>

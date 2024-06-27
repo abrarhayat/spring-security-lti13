@@ -10,13 +10,7 @@
 <script>
     function showError(message) {
         const h1 = document.createElement("h1")
-        h1.textContent = "Error: "+ message
-        document.body.append(h1)
-    }
-
-    function showWaitingMessage(message) {
-        const h1 = document.createElement("h1")
-        h1.textContent = message
+        h1.textContent = "Error: " + message
         document.body.append(h1)
     }
 
@@ -27,7 +21,7 @@
     // Have we set the values in the storage?
     let savedState = null;
     let savedNonce = null;
-    
+
     try {
         /**
          * Attempt to generate a uuid, falls back to a random string on
@@ -41,22 +35,22 @@
                 return (Math.random() + 1).toString(36).substring(2, 5)
             }
         }
+
         const platformOrigin = "*"; // Canvas doesn't support origin.
         let targetFrame = window.parent || window.opener
 
         // If we don't get any response from the platform show something to the user.
-        setTimeout(function() {
+        setTimeout(function () {
             showError("Timeout handling LTI authentication (retrieval), please retry");
         }, 5000)
-
 
 
         let stateUuid = uuid();
         postAndHandle(targetFrame, {
             "subject": "lti.get_data",
             "message_id": stateUuid,
-            "key": "state_"+ state
-        } , platformOrigin, function(event) {
+            "key": "state_" + state
+        }, platformOrigin, function (event) {
             savedState = event.data.value
             checkAndRedirect()
         })
@@ -65,8 +59,8 @@
         postAndHandle(targetFrame, {
             "subject": "lti.get_data",
             "message_id": nonceUuid,
-            "key": "nonce_"+ nonce
-        } , platformOrigin, function(event) {
+            "key": "nonce_" + nonce
+        }, platformOrigin, function (event) {
             savedNonce = event.data.value
             checkAndRedirect()
         })
@@ -92,11 +86,11 @@
         function postAndHandle(target, message, origin, onResponse) {
             function handler(event) {
                 // This isn't a message we're expecting
-                if (typeof event.data !== "object"){
+                if (typeof event.data !== "object") {
                     return;
                 }
                 // Validate it's the response type you expect
-                if (event.data.subject !== message.subject+ ".response") {
+                if (event.data.subject !== message.subject + ".response") {
                     return;
                 }
                 // Validate the message id matches the id you sent
@@ -108,7 +102,7 @@
                     return;
                 }
                 // handle errors
-                if (event.data.error){
+                if (event.data.error) {
                     // handle errors (message and code)
                     console.log(event.data.error)
                     return;
@@ -117,6 +111,7 @@
                 // Cleanup now we've got our message.
                 window.removeEventListener('message', handler)
             }
+
             window.addEventListener('message', handler);
             // Now the handler is setup we can send our message.
             target.postMessage(message, origin);

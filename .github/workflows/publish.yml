@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - release/*
 jobs:
   Publish-To-GitHub-Packages:
     runs-on: ubuntu-latest

@@ -14,6 +14,12 @@
         document.body.append(h1)
     }
 
+    function showWaitingMessage(message) {
+        const h1 = document.createElement("h1")
+        h1.textContent = message
+        document.body.append(h1)
+    }
+
     const state = "@@state@@";
     const url = "@@url@@"
     const nonce = "@@nonce@@";
@@ -41,8 +47,8 @@
 
         // If we don't get any response from the platform show something to the user.
         setTimeout(function () {
-            showError("Timeout handling LTI authentication (retrieval), please retry");
-        }, 5000)
+            showWaitingMessage("Waiting for LTI authentication to complete, please wait.");
+        }, 20000)
 
 
         let stateUuid = uuid();
